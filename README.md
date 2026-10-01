@@ -1,5 +1,7 @@
 # @emmanueldemey/training-kit
 
+[![CI](https://github.com/EmmanuelDemey/training-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/EmmanuelDemey/training-kit/actions/workflows/ci.yml)
+
 Turns a folder of numbered slides and a folder of numbered workshops into a
 complete training:
 
