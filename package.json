@@ -1,0 +1,83 @@
+{
+  "name": "@emmanueldemey/training-kit",
+  "version": "0.1.0",
+  "description": "Builds a training from a folder of numbered slides and a folder of numbered workshops: a Slidev deck, a Starlight workshops site with an online editor, PDFs and ZIPs",
+  "keywords": [
+    "astro",
+    "course",
+    "pdf",
+    "slides",
+    "slidev",
+    "stackblitz",
+    "starlight",
+    "training",
+    "workshop"
+  ],
+  "homepage": "https://github.com/EmmanuelDemey/training-kit#readme",
+  "bugs": {
+    "url": "https://github.com/EmmanuelDemey/training-kit/issues"
+  },
+  "license": "MIT",
+  "author": "Emmanuel Demey <demey.emmanuel@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EmmanuelDemey/training-kit.git"
+  },
+  "bin": {
+    "training-kit": "./bin/training-kit.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "site-template"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./src/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "lint": "oxlint --deny-warnings",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "knip": "knip",
+    "cpd": "jscpd",
+    "check": "pnpm run format:check && pnpm run lint && pnpm run knip && pnpm run cpd && pnpm run test",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@slidev/parser": "52.8.0",
+    "archiver": "^7.0.1",
+    "marked": "^11.2.0",
+    "pdf-lib": "^1.17.1",
+    "playwright-chromium": "^1.63.0",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "jscpd": "^5.4.0",
+    "knip": "^6.39.0",
+    "oxfmt": "^0.71.0",
+    "oxlint": "^1.86.0",
+    "vitest": "^5.0.3"
+  },
+  "peerDependencies": {
+    "@astrojs/starlight": ">=0.42.0",
+    "@slidev/cli": ">=52.0.0",
+    "@stackblitz/sdk": "^1.11.0",
+    "astro": ">=7.2.10"
+  },
+  "peerDependenciesMeta": {
+    "@stackblitz/sdk": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=22.12"
+  },
+  "packageManager": "pnpm@12.3.1"
+}

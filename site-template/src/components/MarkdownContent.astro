@@ -1,0 +1,76 @@
+---
+// Starlight's MarkdownContent, plus the script behind the "work online" block
+// that training-kit (src/site.mjs) puts at the top of each workshop page.
+//
+// The block is raw HTML in a Markdown page, so its behaviour cannot live in a
+// component of its own — it lives here, on every page, and does nothing on a
+// page without a `[data-playground]`. The StackBlitz SDK and the workshop files
+// are only downloaded once the learner clicks.
+import Default from '@astrojs/starlight/components/MarkdownContent.astro';
+---
+
+<Default><slot /></Default>
+
+<script>
+  type Project = import('@stackblitz/sdk').Project;
+
+  const theme = () => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+
+  for (const block of document.querySelectorAll<HTMLElement>('[data-playground]')) {
+    const status = block.querySelector<HTMLElement>('.playground__status')!;
+    const frame = block.querySelector<HTMLElement>('.playground__frame')!;
+    const buttons = block.querySelectorAll<HTMLButtonElement>('[data-action]');
+    const openFile = block.dataset.openFile;
+
+    // Without cross-origin isolation (Safari, or a server that does not send the
+    // headers) the embedded editor cannot boot Node.js — offer the new tab only,
+    // where stackblitz.com isolates itself.
+    if (!crossOriginIsolated) block.querySelector('[data-action="embed"]')?.remove();
+
+    // Fetched once, then reused by both buttons.
+    let project: Promise<Project> | undefined;
+    const load = () =>
+      (project ??= fetch(block.dataset.playground!).then((response) => {
+        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+        return response.json();
+      }));
+
+    for (const button of buttons) {
+      button.addEventListener('click', async () => {
+        buttons.forEach((b) => (b.disabled = true));
+        status.textContent = 'Loading the workshop…';
+        try {
+          const [{ default: sdk }, files] = await Promise.all([import('@stackblitz/sdk'), load()]);
+
+          if (button.dataset.action === 'open') {
+            sdk.openProject(files, { openFile, theme: theme(), newWindow: true });
+            status.textContent = 'Opened in a new tab.';
+            buttons.forEach((b) => (b.disabled = false));
+            return;
+          }
+
+          // embedProject replaces the element it is given with the iframe.
+          const slot = document.createElement('div');
+          frame.replaceChildren(slot);
+          await sdk.embedProject(slot, files, {
+            openFile,
+            theme: theme(),
+            height: 640,
+            terminalHeight: 35,
+            // WebContainers need SharedArrayBuffer, so both this page and the
+            // editor must be cross-origin isolated: the page through the
+            // COOP/COEP headers that training-kit writes into
+            // build/_headers, the editor through this flag.
+            crossOriginIsolated: true,
+          });
+          status.textContent = '';
+          block.querySelector('[data-action="embed"]')?.remove();
+          buttons.forEach((b) => (b.disabled = false));
+        } catch (error) {
+          status.textContent = `The online editor could not start (${error instanceof Error ? error.message : 'no answer from StackBlitz'}). Work locally from the folder above.`;
+          buttons.forEach((b) => (b.disabled = false));
+        }
+      });
+    }
+  }
+</script>

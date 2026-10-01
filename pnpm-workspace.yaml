@@ -1,0 +1,13 @@
+# pnpm reads its settings here since v11.
+
+# strictDepBuilds is on by default since pnpm 11: a dependency with a build
+# script that is neither allowed nor denied fails the install.
+allowBuilds:
+  # Its postinstall downloads a Chromium. training-kit installs it on demand,
+  # only for the PDF exports, unless TRAINING_KIT_CHROME points at one already
+  # on the machine.
+  playwright-chromium: false
+  # Pulled in by the peer dependencies (Astro, Slidev): the platform binaries
+  # ship as optional dependencies, neither needs its script.
+  esbuild: false
+  sharp: false

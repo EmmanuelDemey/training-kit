@@ -1,0 +1,245 @@
+import { test } from 'vitest';
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { readFile, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import { resolveConfig } from '../src/config.mjs';
+import {
+  renderAstroConfig,
+  renderOverviewPage,
+  renderPlayground,
+  renderResourcesPage,
+  renderWorkshopPage,
+  writeSite,
+} from '../src/site.mjs';
+import { tree } from './tree.mjs';
+
+const workshop = {
+  name: '2-second',
+  order: 2,
+  slug: '2-second',
+  title: 'TP 2 — Second',
+  label: '2. Second',
+  description: 'Two.',
+  body: '> Two.\n\n## Goal\n',
+};
+
+test('a workshop page carries the title, the description and the order of its folder', () => {
+  const config = resolveConfig({ title: 'T' }, '/work/t');
+
+  const page = renderWorkshopPage({ config, workshop });
+
+  assert.match(
+    page,
+    /^---\ntitle: "TP 2 — Second"\ndescription: "Two."\nsidebar:\n  order: 2\n  label: "2. Second"\n---\n/,
+  );
+  assert.match(page, /Open `workshops\/2-second\/`/);
+  assert.match(page, /## Goal\n$/);
+  assert.doesNotMatch(page, /editUrl|GitHub/);
+});
+
+test('with a repository, a workshop page links to its README and its folder', () => {
+  const config = resolveConfig(
+    { title: 'T', repository: { url: 'https://github.com/me/all', dir: 'trainings/t' } },
+    '/work/t',
+  );
+
+  const page = renderWorkshopPage({ config, workshop });
+
+  assert.match(
+    page,
+    /editUrl: "https:\/\/github.com\/me\/all\/edit\/main\/trainings\/t\/workshops\/2-second\/README.md"/,
+  );
+  assert.match(page, /\(https:\/\/github.com\/me\/all\/tree\/main\/trainings\/t\/workshops\/2-second\)/);
+});
+
+test('the online editor block goes right after the note, before the instructions', () => {
+  const config = resolveConfig({ title: 'T' }, '/work/t');
+
+  const page = renderWorkshopPage({ config, workshop, playground: '<div class="playground"></div>' });
+
+  assert.match(page, /:::\n\n<div class="playground"><\/div>\n\n> Two\./);
+});
+
+test('the online editor block escapes what it is given, and has no blank line to break the HTML block', () => {
+  const block = renderPlayground({ src: '/playgrounds/a"b.json', openFile: 'README.md', limits: 'Not `Cypress`.' });
+
+  assert.match(block, /data-playground="\/playgrounds\/a&quot;b.json" data-open-file="README.md"/);
+  assert.match(block, /Not <code>Cypress<\/code>\./);
+  assert.doesNotMatch(block, /\n\n/);
+});
+
+test('the overview links every workshop by number, then says what the workshops README says', () => {
+  const config = resolveConfig({ title: 'Vue' }, '/work/t');
+
+  const page = renderOverviewPage({
+    config,
+    workshops: [workshop],
+    overview: { title: 'About', description: 'Read me.', body: 'Read me.' },
+  });
+
+  assert.match(page, /^---\ntitle: "About"\ndescription: "Read me."\n/);
+  assert.match(page, /\| 2 \| \[Second\]\(\/workshops\/2-second\/\) \| Two\. \|/);
+  assert.match(page, /## About these workshops\n\nRead me\.\n$/);
+});
+
+test('the overview stands on its own when the workshops have no README', () => {
+  const config = resolveConfig({ title: 'Vue' }, '/work/t');
+
+  const page = renderOverviewPage({ config, workshops: [workshop], overview: null });
+
+  assert.match(page, /title: "Vue"/);
+  assert.doesNotMatch(page, /About these workshops/);
+});
+
+test('resources only offer the files the build actually produced', () => {
+  const config = resolveConfig({ title: 'Vue', slug: 'vue' }, '/work/t');
+
+  const page = renderResourcesPage({ config, workshops: [workshop], downloads: new Set(['vue-workshops.pdf']) });
+
+  assert.match(page, /\[Read the deck online\]\(\/slides\/\)/);
+  assert.match(page, /\(\/downloads\/vue-workshops\.pdf\)/);
+  assert.doesNotMatch(page, /vue-slides\.pdf|vue-solutions\.zip|vue-participants\.zip/);
+});
+
+test('resources say there are no solutions when the training has none by design', () => {
+  const config = resolveConfig({ title: 'Vue', solutions: false }, '/work/t');
+
+  const page = renderResourcesPage({ config, workshops: [workshop], downloads: new Set() });
+
+  assert.match(page, /no solutions archive/);
+  assert.doesNotMatch(page, /Not before you have tried/);
+});
+
+/** Syntax only: the config imports Astro, which the test does not load. */
+async function assertValidModule(source) {
+  const dir = await tree({ 'astro.config.mjs': source });
+  const result = spawnSync(process.execPath, ['--check', join(dir, 'astro.config.mjs')], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+}
+
+test('the Astro config is valid JavaScript, titled after the training', async () => {
+  const config = resolveConfig({ title: 'Vue\'s "advanced" side' }, '/work/t');
+
+  const source = renderAstroConfig(config);
+
+  await assertValidModule(source);
+  assert.match(source, /title: "Vue's \\"advanced\\" side"/);
+  // Since Starlight 0.39, an autogenerated group is an `items` entry, never a sibling of `label`.
+  assert.match(source, /\{ label: 'Workshops', items: \[\{ autogenerate: \{ directory: 'workshops' \} \}\] \}/);
+  assert.doesNotMatch(source, /Cross-Origin-Embedder-Policy|editLink|MarkdownContent/);
+});
+
+test('the online editor turns on cross-origin isolation and the script that drives it', async () => {
+  const config = resolveConfig({ title: 'T', playground: true, repository: 'https://github.com/me/t' }, '/work/t');
+
+  const source = renderAstroConfig(config);
+
+  await assertValidModule(source);
+  assert.match(source, /'Cross-Origin-Embedder-Policy': 'require-corp'/);
+  assert.match(source, /MarkdownContent: '\.\/src\/components\/MarkdownContent\.astro'/);
+  assert.match(source, /editLink: \{ baseUrl: "https:\/\/github.com\/me\/t\/edit\/main\/" \}/);
+});
+
+test('writes a complete Astro project under .training-kit/site', async () => {
+  const root = await tree({
+    'workshops/README.md': '# About\n\nRead me.',
+    'workshops/1-a/README.md': '# A\n\n> Ay.',
+    'workshops/1-a/index.html': '<h1>A</h1>',
+  });
+  const config = resolveConfig({ title: 'T', playground: true }, root);
+
+  const { siteDir, pages } = await writeSite(config);
+
+  assert.equal(siteDir, join(root, '.training-kit/site'));
+  assert.equal(pages, 3);
+  for (const file of [
+    'astro.config.mjs',
+    'src/content.config.ts',
+    'src/components/MarkdownContent.astro',
+    'src/styles/custom.css',
+    'src/content/docs/index.md',
+    'src/content/docs/resources.md',
+    'src/content/docs/workshops/1-a.md',
+  ]) {
+    assert.ok(existsSync(join(siteDir, file)), `${file} is missing`);
+  }
+  const project = JSON.parse(await readFile(join(siteDir, 'public/playgrounds/1-a.json'), 'utf8'));
+  assert.deepEqual(Object.keys(project.files).toSorted(), ['README.md', 'index.html']);
+});
+
+test('a workshop that is gone leaves no page behind', async () => {
+  const root = await tree({ 'workshops/1-a/README.md': '# A', 'workshops/2-b/README.md': '# B' });
+  const config = resolveConfig({ title: 'T' }, root);
+  await writeSite(config);
+
+  await rm(join(root, 'workshops/2-b'), { recursive: true });
+  const { siteDir } = await writeSite(config);
+
+  assert.ok(!existsSync(join(siteDir, 'src/content/docs/workshops/2-b.md')));
+});
+
+test('resources read the downloads folder of the build', async () => {
+  const root = await tree({ 'workshops/1-a/README.md': '# A', 'build/downloads/t-slides.pdf': '' });
+  const config = resolveConfig({ title: 'T' }, root);
+
+  const { siteDir } = await writeSite(config);
+
+  assert.match(await readFile(join(siteDir, 'src/content/docs/resources.md'), 'utf8'), /\/downloads\/t-slides\.pdf/);
+});
+
+test('a workshop page offers its starter and its solution, between the note and the instructions', () => {
+  const config = resolveConfig({ title: 'T' }, '/work/t');
+  const downloads = new Set(['tp/2-second-starter.zip', 'tp/2-second-solution.zip']);
+
+  const page = renderWorkshopPage({ config, workshop, downloads, playground: '<div class="playground"></div>' });
+
+  assert.match(
+    page,
+    /:::\n\n:::tip\[Download this workshop\]\n- \*\*\[The starter \(ZIP\)\]\(\/downloads\/tp\/2-second-starter\.zip\)\*\*.*\n- \[The solution \(ZIP\)\]\(\/downloads\/tp\/2-second-solution\.zip\).*\n:::\n\n<div class="playground">/,
+  );
+});
+
+test('a workshop page offers only the ZIPs the build produced', () => {
+  const config = resolveConfig({ title: 'T' }, '/work/t');
+
+  const starterOnly = renderWorkshopPage({ config, workshop, downloads: new Set(['tp/2-second-starter.zip']) });
+  const none = renderWorkshopPage({ config, workshop });
+
+  assert.match(starterOnly, /2-second-starter\.zip/);
+  assert.doesNotMatch(starterOnly, /solution \(ZIP\)/);
+  assert.doesNotMatch(none, /Download this workshop/);
+});
+
+test('resources list every workshop with its two ZIPs', () => {
+  const config = resolveConfig({ title: 'Vue', slug: 'vue' }, '/work/t');
+  const downloads = new Set(['tp/2-second-starter.zip']);
+
+  const page = renderResourcesPage({ config, workshops: [workshop], downloads });
+
+  assert.match(
+    page,
+    /## Workshop by workshop\n\n\| # \| Workshop \| Starter \| Solution \|\n\|---\|---\|---\|---\|\n\| 2 \| \[Second\]\(\/workshops\/2-second\/\) \| \[ZIP\]\(\/downloads\/tp\/2-second-starter\.zip\) \| — \|/,
+  );
+});
+
+test('resources have no per-workshop table when the build zipped none', () => {
+  const config = resolveConfig({ title: 'Vue' }, '/work/t');
+
+  const page = renderResourcesPage({ config, workshops: [workshop], downloads: new Set() });
+
+  assert.doesNotMatch(page, /Workshop by workshop/);
+});
+
+test('workshop pages see the ZIPs the build put under downloads/tp/', async () => {
+  const root = await tree({ 'workshops/1-a/README.md': '# A', 'build/downloads/tp/1-a-starter.zip': '' });
+  const config = resolveConfig({ title: 'T' }, root);
+
+  const { siteDir } = await writeSite(config);
+
+  assert.match(
+    await readFile(join(siteDir, 'src/content/docs/workshops/1-a.md'), 'utf8'),
+    /\/downloads\/tp\/1-a-starter\.zip/,
+  );
+});

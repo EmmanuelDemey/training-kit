@@ -1,0 +1,79 @@
+/* The workshop instructions are dense: give the code and the tables room. */
+:root {
+  --sl-content-width: 50rem;
+}
+
+/* Wide tables (the "8 errors", the acceptance grids) must scroll on their own
+   rather than pushing the page sideways. */
+.sl-markdown-content table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* Numbered steps are the backbone of every workshop — make them readable. */
+.sl-markdown-content ol > li {
+  margin-block: 0.5rem;
+}
+
+.sl-markdown-content ol > li::marker {
+  font-weight: 600;
+  color: var(--sl-color-text-accent);
+}
+
+/* The "work online" block at the top of a workshop page — raw HTML written by
+   training-kit (src/site.mjs), driven by src/components/MarkdownContent.astro. */
+.playground {
+  margin-block: 1.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  background: var(--sl-color-black);
+}
+
+.playground__limits {
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-gray-2);
+}
+
+.playground__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.playground__button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--sl-color-accent);
+  border-radius: 0.375rem;
+  background: var(--sl-color-accent);
+  color: var(--sl-color-black);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.playground__button--secondary {
+  background: transparent;
+  color: var(--sl-color-text-accent);
+}
+
+.playground__button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.playground__status:empty {
+  display: none;
+}
+
+/* The editor wants all the room it can get. The height has to be set here:
+   Starlight gives every iframe of the content `height: auto`, which beats the
+   attribute the StackBlitz SDK sets. */
+.sl-markdown-content .playground__frame iframe {
+  display: block;
+  width: 100%;
+  height: min(40rem, 85vh);
+  border: 0;
+  border-radius: 0.375rem;
+}
