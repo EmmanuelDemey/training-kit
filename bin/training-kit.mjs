@@ -4,13 +4,13 @@
 
 import { parseArgs } from 'node:util';
 import { relative } from 'node:path';
-import { build } from '../src/build.mjs';
-import { loadConfig } from '../src/config.mjs';
-import { DECK_FILE, writeDeck } from '../src/deck.mjs';
-import { devSite, devSlides } from '../src/dev.mjs';
-import { renderList } from '../src/list.mjs';
-import { listNumbered } from '../src/numbering.mjs';
-import { readWorkshops } from '../src/workshops.mjs';
+import { build } from '../src/cli/build.mjs';
+import { loadConfig } from '../src/core/config.mjs';
+import { DECK_FILE, writeDeck } from '../src/deck/deck.mjs';
+import { devSite, devSlides } from '../src/cli/dev.mjs';
+import { renderList } from '../src/cli/list.mjs';
+import { listNumbered } from '../src/core/numbering.mjs';
+import { readWorkshops } from '../src/core/workshops.mjs';
 
 const HELP = `Usage: training-kit <command> [options]
 

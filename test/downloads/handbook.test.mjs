@@ -1,6 +1,6 @@
 import { test } from 'vitest';
 import assert from 'node:assert/strict';
-import { renderHandbook } from '../src/handbook.mjs';
+import { renderHandbook } from '../../src/downloads/handbook.mjs';
 
 const workshops = [
   { name: '1-intro', order: 1, slug: '1-intro', title: 'TP 1 — Intro', body: '## Goal\n\nStart.' },

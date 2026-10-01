@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { readFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
-import { resolveConfig } from '../src/config.mjs';
+import { resolveConfig } from '../../src/core/config.mjs';
 import {
   renderAstroConfig,
   renderOverviewPage,
@@ -12,8 +12,8 @@ import {
   renderResourcesPage,
   renderWorkshopPage,
   writeSite,
-} from '../src/site.mjs';
-import { tree } from './tree.mjs';
+} from '../../src/site/site.mjs';
+import { tree } from '../helpers/tree.mjs';
 
 const workshop = {
   name: '2-second',

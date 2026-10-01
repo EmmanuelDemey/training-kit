@@ -4,8 +4,8 @@
 
 import { watch } from 'node:fs';
 import { sep } from 'node:path';
-import { writeDeck } from './deck.mjs';
-import { writeSite } from './site.mjs';
+import { writeDeck } from '../deck/deck.mjs';
+import { writeSite } from '../site/site.mjs';
 import { binPath, start } from './tools.mjs';
 
 /** Folders a workshop fills on its own — an `npm install` there is not an edit. */

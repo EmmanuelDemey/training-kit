@@ -2,9 +2,9 @@ import { test } from 'vitest';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { DECK_FILE, renderDeck, writeDeck } from '../src/deck.mjs';
-import { resolveConfig } from '../src/config.mjs';
-import { tree } from './tree.mjs';
+import { DECK_FILE, renderDeck, writeDeck } from '../../src/deck/deck.mjs';
+import { resolveConfig } from '../../src/core/config.mjs';
+import { tree } from '../helpers/tree.mjs';
 
 test('opens on a cover built from the headmatter, then imports every chapter in order', () => {
   const deck = renderDeck({

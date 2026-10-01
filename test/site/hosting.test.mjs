@@ -1,7 +1,7 @@
 import { test } from 'vitest';
 import assert from 'node:assert/strict';
-import { resolveConfig } from '../src/config.mjs';
-import { renderHeaders, renderRedirects } from '../src/hosting.mjs';
+import { resolveConfig } from '../../src/core/config.mjs';
+import { renderHeaders, renderRedirects } from '../../src/site/hosting.mjs';
 
 test('sends every deck route to its index, since Slidev routes on the client', () => {
   assert.equal(renderRedirects(), '/slides/*  /slides/index.html  200\n');

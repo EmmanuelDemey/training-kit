@@ -22,7 +22,7 @@
 }
 
 /* The "work online" block at the top of a workshop page — raw HTML written by
-   training-kit (src/site.mjs), driven by src/components/MarkdownContent.astro. */
+   training-kit (src/site/site.mjs), driven by src/components/MarkdownContent.astro. */
 .playground {
   margin-block: 1.5rem;
   padding: 1rem 1.25rem;

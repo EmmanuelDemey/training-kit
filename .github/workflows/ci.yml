@@ -64,7 +64,7 @@ jobs:
       # commit. npm, as most users will.
       - name: Scaffold a training
         run: |
-          node create-training-kit/index.mjs "$RUNNER_TEMP/demo" --yes \
+          node create-training-kit/bin/create-training-kit.mjs "$RUNNER_TEMP/demo" --yes \
             --title "CI Demo" --author "CI" \
             --kit "file:$GITHUB_WORKSPACE/training-kit"
 

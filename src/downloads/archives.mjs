@@ -13,7 +13,7 @@ import { createWriteStream, existsSync } from 'node:fs';
 import { mkdir, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import archiver from 'archiver';
-import { downloadNames, workshopDownloadNames } from './downloads.mjs';
+import { downloadNames, workshopDownloadNames } from './names.mjs';
 
 /** Never zipped: what an install or a build regenerates, and local env overrides. */
 const NOT_SHIPPED = [

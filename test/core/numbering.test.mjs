@@ -1,7 +1,7 @@
 import { test } from 'vitest';
 import assert from 'node:assert/strict';
-import { listNumbered, orderOf } from '../src/numbering.mjs';
-import { tree } from './tree.mjs';
+import { listNumbered, orderOf } from '../../src/core/numbering.mjs';
+import { tree } from '../helpers/tree.mjs';
 
 test('reads the number a name starts with, whatever the separator and padding', () => {
   assert.equal(orderOf('1-introduction.md'), 1);

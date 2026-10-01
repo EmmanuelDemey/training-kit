@@ -1,9 +1,9 @@
 // Ported from scripts/playground.test.mjs of the trainings-v2 repository.
 import { test } from 'vitest';
 import assert from 'node:assert/strict';
-import { collectFiles, playgroundProject } from '../src/playground.mjs';
+import { collectFiles, playgroundProject } from '../../src/site/playground.mjs';
 // A throwaway workshop folder: `files` maps a path to its content.
-import { tree as workshop } from './tree.mjs';
+import { tree as workshop } from '../helpers/tree.mjs';
 
 test('keeps the starter files, nested ones and dotfiles included', async () => {
   const dir = await workshop({

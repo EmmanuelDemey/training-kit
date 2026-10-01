@@ -1,8 +1,8 @@
 import { test } from 'vitest';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { defineConfig, loadConfig, resolveConfig } from '../src/config.mjs';
-import { tree } from './tree.mjs';
+import { defineConfig, loadConfig, resolveConfig } from '../../src/core/config.mjs';
+import { tree } from '../helpers/tree.mjs';
 
 test('only the title is required: everything else has a default', () => {
   const config = resolveConfig({ title: 'Advanced Vue.js' }, '/work/vue');

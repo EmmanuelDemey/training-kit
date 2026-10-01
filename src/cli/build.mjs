@@ -20,15 +20,15 @@
 import { existsSync } from 'node:fs';
 import { cp, mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { participantsZip, solutionsZip, workshopZips } from './archives.mjs';
-import { writeDeck } from './deck.mjs';
-import { printDeck } from './deck-pdf.mjs';
-import { downloadNames } from './downloads.mjs';
-import { printHandbook, renderHandbook } from './handbook.mjs';
-import { renderHeaders, renderRedirects } from './hosting.mjs';
-import { writeSite } from './site.mjs';
+import { participantsZip, solutionsZip, workshopZips } from '../downloads/archives.mjs';
+import { writeDeck } from '../deck/deck.mjs';
+import { printDeck } from '../deck/deck-pdf.mjs';
+import { downloadNames } from '../downloads/names.mjs';
+import { printHandbook, renderHandbook } from '../downloads/handbook.mjs';
+import { renderHeaders, renderRedirects } from '../site/hosting.mjs';
+import { writeSite } from '../site/site.mjs';
 import { binPath, chromiumPath, run } from './tools.mjs';
-import { readWorkshops } from './workshops.mjs';
+import { readWorkshops } from '../core/workshops.mjs';
 
 const megabytes = (bytes) => `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 

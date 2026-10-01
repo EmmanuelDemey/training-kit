@@ -1,6 +1,6 @@
 import { test } from 'vitest';
 import assert from 'node:assert/strict';
-import { renderList } from '../src/list.mjs';
+import { renderList } from '../../src/cli/list.mjs';
 
 test('shows the chapters and the workshops by number, then what was left out and why', () => {
   const text = renderList({

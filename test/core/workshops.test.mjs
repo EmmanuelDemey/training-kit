@@ -1,8 +1,8 @@
 import { test } from 'vitest';
 import assert from 'node:assert/strict';
-import { labelOf, parseReadme, readWorkshops } from '../src/workshops.mjs';
-import { resolveConfig } from '../src/config.mjs';
-import { tree } from './tree.mjs';
+import { labelOf, parseReadme, readWorkshops } from '../../src/core/workshops.mjs';
+import { resolveConfig } from '../../src/core/config.mjs';
+import { tree } from '../helpers/tree.mjs';
 
 test('takes the title from the leading heading and drops it from the body', () => {
   const { title, body } = parseReadme('# TP 1 — Devtools\n\n> Find the wasted renders.\n\n## Goal\n', 'fallback');

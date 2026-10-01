@@ -11,7 +11,7 @@ import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { stringify } from 'yaml';
-import { listNumbered } from './numbering.mjs';
+import { listNumbered } from '../core/numbering.mjs';
 
 export const DECK_FILE = 'deck.generated.md';
 

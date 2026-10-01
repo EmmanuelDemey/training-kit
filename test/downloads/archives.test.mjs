@@ -6,7 +6,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { participantsZip, solutionsZip, workshopZips } from '../src/archives.mjs';
+import { participantsZip, solutionsZip, workshopZips } from '../../src/downloads/archives.mjs';
 
 /** A throwaway training: `files` are paths under its root, `tp/` and `downloads/`. */
 async function training(files) {

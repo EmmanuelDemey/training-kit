@@ -11,11 +11,11 @@ import { existsSync } from 'node:fs';
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { downloadNames, workshopDownloadNames } from './downloads.mjs';
+import { downloadNames, workshopDownloadNames } from '../downloads/names.mjs';
 import { playgroundProject } from './playground.mjs';
-import { readWorkshops } from './workshops.mjs';
+import { readWorkshops } from '../core/workshops.mjs';
 
-const TEMPLATE_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'site-template');
+const TEMPLATE_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'site-template');
 
 const yaml = (value) => JSON.stringify(value); // a valid YAML double-quoted scalar
 

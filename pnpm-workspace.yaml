@@ -1,3 +1,6 @@
+# Not a workspace: since pnpm 11 this file is where pnpm reads its settings,
+# even for a single package.
+
 # pnpm reads its settings here since v11.
 
 # strictDepBuilds is on by default since pnpm 11: a dependency with a build
