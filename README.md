@@ -148,6 +148,7 @@ export default defineConfig({
 
 ```bash
 training-kit list            # what the numbering picks up, in order, and what it leaves out
+training-kit check           # what would break, without building — exits 1 on a problem
 training-kit slides          # the deck, live — Slidev's own options after it: --port 3031
 training-kit site            # the workshops site, live — Astro's own options after it
 training-kit build           # everything, into build/
@@ -155,6 +156,14 @@ training-kit build --no-pdf  # without the two PDF exports (the slow part)
 training-kit build --only slides|pdf|site
 training-kit deck            # only write the deck entry, to run Slidev by hand
 ```
+
+`check` reads the project without building it, so it is fast enough for a
+pre-commit hook or a CI step. It reports two chapters or two workshops sharing a
+number, a workshop without a `README.md` or without a solution, a solution
+folder that matches no workshop, the relative links and images of the READMEs
+and chapters that lead nowhere, a slide asset (`/logo.png`, `image:`,
+`background:`) missing from `slides/public/`, and a `src:` import that does not
+exist. Links and images inside code are left alone.
 
 While `slides` runs, adding, renaming or removing a chapter updates the open
 deck. While `site` runs, saving a workshop README updates its page.

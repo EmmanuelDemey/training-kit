@@ -72,18 +72,38 @@ export function solutionsZip({ slug, solutionsDir, downloadsDir }) {
 }
 
 /**
+ * Pairs each workshop with the folder of `solutionsDir` with the SAME name.
+ * Returns the workshops without one, and the solution folders that match no
+ * workshop: a misspelt name would otherwise silently publish no solution.
+ * Nothing to pair when the training has no solutions folder.
+ */
+export async function pairSolutions({ workshops, solutionsDir }) {
+  if (!solutionsDir || !existsSync(solutionsDir)) return { missingSolution: [], orphans: [] };
+
+  const missingSolution = workshops
+    .filter((workshop) => !existsSync(join(solutionsDir, workshop.name)))
+    .map((workshop) => workshop.name);
+  const known = new Set(workshops.map((workshop) => workshop.name));
+  const orphans = (await readdir(solutionsDir, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith('_') && !entry.name.startsWith('.'))
+    .map((entry) => entry.name)
+    .filter((name) => !known.has(name))
+    .toSorted();
+
+  return { missingSolution, orphans };
+}
+
+/**
  * One ZIP per workshop for its starter (the workshop folder: README and code),
  * and one for its solution: the folder of `solutionsDir` with the SAME name.
  *
  *   tp/<n-name>-starter.zip     <n-name>/…
  *   tp/<n-name>-solution.zip    <n-name>-solution/… — never unzipped over the starter
  *
- * Reports the workshops without a solution, and the solution folders that match
- * no workshop: a misspelt name would otherwise silently publish no solution.
+ * Reports what pairSolutions() finds.
  */
 export async function workshopZips({ workshops, solutionsDir, downloadsDir }) {
-  const missingSolution = [];
-  const withSolution = solutionsDir && existsSync(solutionsDir);
+  const { missingSolution, orphans } = await pairSolutions({ workshops, solutionsDir });
 
   for (const workshop of workshops) {
     const names = workshopDownloadNames(workshop.slug);
@@ -91,12 +111,8 @@ export async function workshopZips({ workshops, solutionsDir, downloadsDir }) {
       archive.glob('**/*', { cwd: workshop.path, dot: true, ignore: NOT_SHIPPED }, { prefix: workshop.name });
     });
 
-    if (!withSolution) continue;
-    const solutionDir = join(solutionsDir, workshop.name);
-    if (!existsSync(solutionDir)) {
-      missingSolution.push(workshop.name);
-      continue;
-    }
+    const solutionDir = solutionsDir && join(solutionsDir, workshop.name);
+    if (!solutionDir || !existsSync(solutionDir)) continue;
     await zip(join(downloadsDir, names.solution), (archive) => {
       archive.glob(
         '**/*',
@@ -105,15 +121,6 @@ export async function workshopZips({ workshops, solutionsDir, downloadsDir }) {
       );
     });
   }
-
-  const known = new Set(workshops.map((workshop) => workshop.name));
-  const orphans = withSolution
-    ? (await readdir(solutionsDir, { withFileTypes: true }))
-        .filter((entry) => entry.isDirectory() && !entry.name.startsWith('_') && !entry.name.startsWith('.'))
-        .map((entry) => entry.name)
-        .filter((name) => !known.has(name))
-        .toSorted()
-    : [];
 
   return { missingSolution, orphans };
 }

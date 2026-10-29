@@ -5,6 +5,7 @@
 import { parseArgs } from 'node:util';
 import { relative } from 'node:path';
 import { build } from '../src/cli/build.mjs';
+import { check, renderCheck } from '../src/cli/check.mjs';
 import { loadConfig } from '../src/core/config.mjs';
 import { DECK_FILE, writeDeck } from '../src/deck/deck.mjs';
 import { devSite, devSlides } from '../src/cli/dev.mjs';
@@ -16,6 +17,9 @@ const HELP = `Usage: training-kit <command> [options]
 
 Commands:
   list                     what the numbering picks up, in order, and what it leaves out
+  check                    what would break, without building: duplicate numbers, a
+                           workshop without README or solution, broken relative links
+                           and images, missing slide assets. Exits 1 on a problem
   slides [slidev args]     the deck, live (Slidev), regenerated as chapters come and go
   site [astro args]        the workshops site, live (Astro), regenerated as READMEs change
   deck                     only write the deck entry, for running Slidev by hand
@@ -65,6 +69,12 @@ try {
     case 'list':
       await list(config);
       break;
+    case 'check': {
+      const problems = await check(config);
+      console.log(renderCheck(problems));
+      if (problems.length) process.exitCode = 1;
+      break;
+    }
     case 'deck': {
       const { file, chapters } = await writeDeck(config);
       console.log(`${relative(config.root, file)}: ${chapters.length} chapters`);
