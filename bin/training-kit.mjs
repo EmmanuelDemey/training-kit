@@ -10,6 +10,7 @@ import { loadConfig } from '../src/core/config.mjs';
 import { DECK_FILE, writeDeck } from '../src/deck/deck.mjs';
 import { devSite, devSlides } from '../src/cli/dev.mjs';
 import { renderList } from '../src/cli/list.mjs';
+import { newChapter, newWorkshop } from '../src/cli/new.mjs';
 import { listNumbered } from '../src/core/numbering.mjs';
 import { readWorkshops } from '../src/core/workshops.mjs';
 
@@ -20,6 +21,9 @@ Commands:
   check                    what would break, without building: duplicate numbers, a
                            workshop without README or solution, broken relative links
                            and images, missing slide assets. Exits 1 on a problem
+  new chapter <name>       slides/<next number>-<name>.md
+  new workshop <name>      workshops/<next number>-<name>/README.md, a skeleton to fill,
+                           and the solution folder of the same name
   slides [slidev args]     the deck, live (Slidev), regenerated as chapters come and go
   site [astro args]        the workshops site, live (Astro), regenerated as READMEs change
   deck                     only write the deck entry, for running Slidev by hand
@@ -73,6 +77,13 @@ try {
       const problems = await check(config);
       console.log(renderCheck(problems));
       if (problems.length) process.exitCode = 1;
+      break;
+    }
+    case 'new': {
+      const [kind, ...words] = rest;
+      const create = { chapter: newChapter, workshop: newWorkshop }[kind];
+      if (!create || !words.length) throw new Error('usage: training-kit new chapter|workshop <name>');
+      for (const path of await create(config, words.join(' '))) console.log(`+ ${relative(config.root, path)}`);
       break;
     }
     case 'deck': {

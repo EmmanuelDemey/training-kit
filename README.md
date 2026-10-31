@@ -149,6 +149,8 @@ export default defineConfig({
 ```bash
 training-kit list            # what the numbering picks up, in order, and what it leaves out
 training-kit check           # what would break, without building — exits 1 on a problem
+training-kit new chapter "Forms"   # slides/<next number>-forms.md
+training-kit new workshop Routing  # workshops/<next number>-routing/README.md + solutions/<same name>/
 training-kit slides          # the deck, live — Slidev's own options after it: --port 3031
 training-kit site            # the workshops site, live — Astro's own options after it
 training-kit build           # everything, into build/
@@ -164,6 +166,12 @@ folder that matches no workshop, the relative links and images of the READMEs
 and chapters that lead nowhere, a slide asset (`/logo.png`, `image:`,
 `background:`) missing from `slides/public/`, and a `src:` import that does not
 exist. Links and images inside code are left alone.
+
+`new` takes the number after the highest one of the folder, turned-off names
+(`_11-draft.md`) included, so turning one back on never collides. A workshop
+gets a README skeleton — title, description blockquote, steps, "done when" —
+and an empty solution folder of the same name (none with `solutions: false`).
+It refuses to overwrite anything that exists.
 
 While `slides` runs, adding, renaming or removing a chapter updates the open
 deck. While `site` runs, saving a workshop README updates its page.
