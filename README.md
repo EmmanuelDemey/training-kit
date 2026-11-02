@@ -152,6 +152,8 @@ training-kit list            # what the numbering picks up, in order, and what i
 training-kit check           # what would break, without building — exits 1 on a problem
 training-kit new chapter "Forms"   # slides/<next number>-forms.md
 training-kit new workshop Routing  # workshops/<next number>-routing/README.md + solutions/<same name>/
+training-kit insert workshop 3 Routing  # workshops/3-routing/ + solutions/3-routing/; 3 and after move one up
+training-kit move chapter 5 2      # slides/5-… becomes 2-…; 2 to 4 move one up
 training-kit verify          # npm run test in every solution — exits 1 when one fails
 training-kit verify --script e2e --install
 training-kit slides          # the deck, live — Slidev's own options after it: --port 3031
@@ -175,6 +177,15 @@ exist. Links and images inside code are left alone.
 gets a README skeleton — title, description blockquote, steps, "done when" —
 and an empty solution folder of the same name (none with `solutions: false`).
 It refuses to overwrite anything that exists.
+
+`insert` does what `new` does at a given number, from 1 to the next free one:
+that entry and every one after it move one up. `move 5 2` renumbers entry 5 as
+2 and shifts the ones in between, in either direction. A workshop's solution
+folder is renamed with it, turned-off entries shift like the others, and a name
+keeps its padding and separator (`02_intro.md` becomes `03_intro.md`). Every
+target is checked before the first rename: on a clash, nothing is renamed. Links
+between workshops (`../3-forms/`) are not rewritten — `check` reports the ones
+left broken.
 
 `verify` runs `npm run test` in every numbered folder of `solutions/`, one after
 the other, and shows the output of those that fail — the check to run after a

@@ -11,6 +11,7 @@ import { DECK_FILE, writeDeck } from '../src/deck/deck.mjs';
 import { devSite, devSlides } from '../src/cli/dev.mjs';
 import { renderList } from '../src/cli/list.mjs';
 import { newChapter, newWorkshop } from '../src/cli/new.mjs';
+import { insert, move } from '../src/cli/renumber.mjs';
 import { renderVerify, verify } from '../src/cli/verify.mjs';
 import { listNumbered } from '../src/core/numbering.mjs';
 import { readWorkshops } from '../src/core/workshops.mjs';
@@ -25,6 +26,11 @@ Commands:
   new chapter <name>       slides/<next number>-<name>.md
   new workshop <name>      workshops/<next number>-<name>/README.md, a skeleton to fill,
                            and the solution folder of the same name
+  insert chapter|workshop <n> <name>
+                           the same, at number n: n and the ones after it move one up,
+                           solution folders along
+  move chapter|workshop <from> <to>
+                           renumbers <from> as <to>; the ones in between shift by one
   verify [options]         npm run test in every solution folder, one after the other.
                            Exits 1 when one fails
     --script <name>        another npm script than test (or verify.script in the config)
@@ -89,6 +95,23 @@ try {
       const create = { chapter: newChapter, workshop: newWorkshop }[kind];
       if (!create || !words.length) throw new Error('usage: training-kit new chapter|workshop <name>');
       for (const path of await create(config, words.join(' '))) console.log(`+ ${relative(config.root, path)}`);
+      break;
+    }
+    case 'insert':
+    case 'move': {
+      const [kind, first, second, ...words] = rest;
+      const usage = {
+        insert: 'usage: training-kit insert chapter|workshop <number> <name>',
+        move: 'usage: training-kit move chapter|workshop <from> <to>',
+      }[command];
+      if (!kind || !first || !second || (command === 'move' && words.length)) throw new Error(usage);
+      const { renamed, created = [] } =
+        command === 'insert'
+          ? await insert(config, kind, Number(first), [second, ...words].join(' '))
+          : await move(config, kind, Number(first), Number(second));
+      const show = (path) => relative(config.root, path);
+      for (const { from, to } of renamed) console.log(`  ${show(from)} → ${show(to)}`);
+      for (const path of created) console.log(`+ ${show(path)}`);
       break;
     }
     case 'verify': {

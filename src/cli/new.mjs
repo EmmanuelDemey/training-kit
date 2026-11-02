@@ -24,7 +24,7 @@ async function nextNumber(dir) {
 }
 
 /** `Écrans & formulaires` -> `ecrans-formulaires`. */
-function wordsOf(name) {
+export function wordsOf(name) {
   const words = slugOf(name.normalize('NFD').replaceAll(/[̀-ͯ]/g, ''));
   if (!words) throw new Error(`a name is required, made of letters or digits: "${name}" has none`);
   return words;
@@ -34,11 +34,14 @@ function refuseExisting(config, path) {
   if (existsSync(path)) throw new Error(`${relative(config.root, path)} already exists — pick another name`);
 }
 
-/** Creates the next chapter of `config`; returns the paths it created. */
-export async function newChapter(config, name) {
+/**
+ * Creates the next chapter of `config` — or chapter `number`, a free slot
+ * `insert` has made; returns the paths it created.
+ */
+export async function newChapter(config, name, { number } = {}) {
   const words = wordsOf(name);
   const dir = config.paths.slides;
-  const file = join(dir, `${await nextNumber(dir)}-${words}.md`);
+  const file = join(dir, `${number ?? (await nextNumber(dir))}-${words}.md`);
   refuseExisting(config, file);
 
   await mkdir(dir, { recursive: true });
@@ -63,13 +66,14 @@ const readmeOf = (title) =>
   ].join('\n');
 
 /**
- * Creates the next workshop of `config`: its folder with a README skeleton, and
- * the solution folder of the same name (a `.gitkeep` so that Git keeps it).
- * Returns the paths it created. Nothing is written when either already exists.
+ * Creates the next workshop of `config` (or workshop `number`): its folder with
+ * a README skeleton, and the solution folder of the same name (a `.gitkeep` so
+ * that Git keeps it). Returns the paths it created. Nothing is written when
+ * either already exists.
  */
-export async function newWorkshop(config, name) {
+export async function newWorkshop(config, name, { number } = {}) {
   const words = wordsOf(name);
-  const folder = `${await nextNumber(config.paths.workshops)}-${words}`;
+  const folder = `${number ?? (await nextNumber(config.paths.workshops))}-${words}`;
   const workshop = join(config.paths.workshops, folder);
   const solution = config.paths.solutions && join(config.paths.solutions, folder);
   refuseExisting(config, workshop);
