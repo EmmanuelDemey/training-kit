@@ -11,6 +11,7 @@ import { DECK_FILE, writeDeck } from '../src/deck/deck.mjs';
 import { devSite, devSlides } from '../src/cli/dev.mjs';
 import { renderList } from '../src/cli/list.mjs';
 import { newChapter, newWorkshop } from '../src/cli/new.mjs';
+import { renderVerify, verify } from '../src/cli/verify.mjs';
 import { listNumbered } from '../src/core/numbering.mjs';
 import { readWorkshops } from '../src/core/workshops.mjs';
 
@@ -24,6 +25,10 @@ Commands:
   new chapter <name>       slides/<next number>-<name>.md
   new workshop <name>      workshops/<next number>-<name>/README.md, a skeleton to fill,
                            and the solution folder of the same name
+  verify [options]         npm run test in every solution folder, one after the other.
+                           Exits 1 when one fails
+    --script <name>        another npm script than test (or verify.script in the config)
+    --install              npm install in each solution first
   slides [slidev args]     the deck, live (Slidev), regenerated as chapters come and go
   site [astro args]        the workshops site, live (Astro), regenerated as READMEs change
   deck                     only write the deck entry, for running Slidev by hand
@@ -84,6 +89,16 @@ try {
       const create = { chapter: newChapter, workshop: newWorkshop }[kind];
       if (!create || !words.length) throw new Error('usage: training-kit new chapter|workshop <name>');
       for (const path of await create(config, words.join(' '))) console.log(`+ ${relative(config.root, path)}`);
+      break;
+    }
+    case 'verify': {
+      const { values } = parseArgs({
+        args: rest,
+        options: { script: { type: 'string' }, install: { type: 'boolean', default: false } },
+      });
+      const results = await verify(config, { script: values.script, install: values.install, log: console.log });
+      console.log(`\n${renderVerify(results)}`);
+      if (results.some((result) => result.status === 'failed')) process.exitCode = 1;
       break;
     }
     case 'deck': {

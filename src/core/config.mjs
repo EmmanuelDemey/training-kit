@@ -78,6 +78,11 @@ export function resolveConfig(raw, root) {
       }
     : null;
 
+  const verify = { script: 'test', ...raw.verify };
+  if (typeof verify.script !== 'string' || verify.script === '') {
+    errors.push('`verify.script` must be the name of an npm script of the solutions (`test` by default)');
+  }
+
   if (errors.length) {
     throw new Error(`Invalid ${CONFIG_FILE}:\n  - ${errors.join('\n  - ')}`);
   }
@@ -91,6 +96,7 @@ export function resolveConfig(raw, root) {
     repository,
     deck: { theme: 'default', headmatter: {}, ...raw.deck },
     playground,
+    verify,
     paths,
   };
 }

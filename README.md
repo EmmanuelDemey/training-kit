@@ -132,6 +132,7 @@ export default defineConfig({
 | `lang`            | `'en'`                 | the language of the site                                                                                                                                       |
 | `deck.theme`      | `'default'`            | the Slidev theme — install its package                                                                                                                         |
 | `deck.headmatter` | `{}`                   | any [Slidev headmatter](https://sli.dev/custom/#headmatter); it wins over `theme` and `title`                                                                  |
+| `verify.script`   | `'test'`               | the npm script `training-kit verify` runs in each solution                                                                                                     |
 | `playground`      | `false`                | the online editor on the workshop pages: `true`, or an object (below)                                                                                          |
 | `repository`      | none                   | a URL, or `{ url, branch = 'main', dir = '' }` — `dir` when the project is a sub-folder of the repository. Adds "edit this page" and "browse the folder" links |
 
@@ -151,6 +152,8 @@ training-kit list            # what the numbering picks up, in order, and what i
 training-kit check           # what would break, without building — exits 1 on a problem
 training-kit new chapter "Forms"   # slides/<next number>-forms.md
 training-kit new workshop Routing  # workshops/<next number>-routing/README.md + solutions/<same name>/
+training-kit verify          # npm run test in every solution — exits 1 when one fails
+training-kit verify --script e2e --install
 training-kit slides          # the deck, live — Slidev's own options after it: --port 3031
 training-kit site            # the workshops site, live — Astro's own options after it
 training-kit build           # everything, into build/
@@ -172,6 +175,12 @@ exist. Links and images inside code are left alone.
 gets a README skeleton — title, description blockquote, steps, "done when" —
 and an empty solution folder of the same name (none with `solutions: false`).
 It refuses to overwrite anything that exists.
+
+`verify` runs `npm run test` in every numbered folder of `solutions/`, one after
+the other, and shows the output of those that fail — the check to run after a
+dependency upgrade. `verify.script` in the config, or `--script`, names another
+npm script; `--install` runs `npm install` in each solution first. A solution
+without a `package.json`, or without the script, is skipped.
 
 While `slides` runs, adding, renaming or removing a chapter updates the open
 deck. While `site` runs, saving a workshop README updates its page.
