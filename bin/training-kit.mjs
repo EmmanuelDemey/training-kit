@@ -8,7 +8,7 @@ import { build } from '../src/cli/build.mjs';
 import { check, renderCheck } from '../src/cli/check.mjs';
 import { loadConfig } from '../src/core/config.mjs';
 import { DECK_FILE, writeDeck } from '../src/deck/deck.mjs';
-import { devSite, devSlides } from '../src/cli/dev.mjs';
+import { dev, devSite, devSlides } from '../src/cli/dev.mjs';
 import { renderList } from '../src/cli/list.mjs';
 import { newChapter, newWorkshop } from '../src/cli/new.mjs';
 import { insert, move } from '../src/cli/renumber.mjs';
@@ -35,6 +35,9 @@ Commands:
                            Exits 1 when one fails
     --script <name>        another npm script than test (or verify.script in the config)
     --install              npm install in each solution first
+  dev [options]            the deck and the site, live, side by side
+    --slides-port <n>      the deck's port (Slidev's default: 3030)
+    --site-port <n>        the site's port (Astro's default: 4321)
   slides [slidev args]     the deck, live (Slidev), regenerated as chapters come and go
   site [astro args]        the workshops site, live (Astro), regenerated as READMEs change
   deck                     only write the deck entry, for running Slidev by hand
@@ -129,11 +132,19 @@ try {
       console.log(`${relative(config.root, file)}: ${chapters.length} chapters`);
       break;
     }
+    case 'dev': {
+      const { values } = parseArgs({
+        args: rest,
+        options: { 'slides-port': { type: 'string' }, 'site-port': { type: 'string' } },
+      });
+      process.exitCode = await dev(config, { slidesPort: values['slides-port'], sitePort: values['site-port'] });
+      break;
+    }
     case 'slides':
-      await devSlides(config, rest);
+      process.exitCode = await devSlides(config, rest);
       break;
     case 'site':
-      await devSite(config, rest);
+      process.exitCode = await devSite(config, rest);
       break;
     case 'build': {
       const { values } = parseArgs({

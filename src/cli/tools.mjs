@@ -34,8 +34,8 @@ export function run(command, args, { cwd, env } = {}) {
 }
 
 /** Starts a long-running command (a dev server) and hands the child back. */
-export function start(command, args, { cwd } = {}) {
-  return spawn(command, args, { cwd, stdio: 'inherit', shell: process.platform === 'win32' });
+export function start(command, args, { cwd, stdin = 'inherit' } = {}) {
+  return spawn(command, args, { cwd, stdio: [stdin, 'inherit', 'inherit'], shell: process.platform === 'win32' });
 }
 
 /**

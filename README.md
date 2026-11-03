@@ -156,6 +156,7 @@ training-kit insert workshop 3 Routing  # workshops/3-routing/ + solutions/3-rou
 training-kit move chapter 5 2      # slides/5-… becomes 2-…; 2 to 4 move one up
 training-kit verify          # npm run test in every solution — exits 1 when one fails
 training-kit verify --script e2e --install
+training-kit dev            # the deck and the site, live, side by side: --slides-port, --site-port
 training-kit slides          # the deck, live — Slidev's own options after it: --port 3031
 training-kit site            # the workshops site, live — Astro's own options after it
 training-kit build           # everything, into build/
@@ -192,6 +193,10 @@ the other, and shows the output of those that fail — the check to run after a
 dependency upgrade. `verify.script` in the config, or `--script`, names another
 npm script; `--install` runs `npm install` in each solution first. A solution
 without a `package.json`, or without the script, is skipped.
+
+`dev` runs both servers in one terminal, Slidev on 3030 and Astro on 4321 by
+default; when one stops, the other stops with it. Neither reads the keyboard
+there — run `slides` alone for Slidev's shortcuts.
 
 While `slides` runs, adding, renaming or removing a chapter updates the open
 deck. While `site` runs, saving a workshop README updates its page.
