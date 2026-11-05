@@ -3,7 +3,8 @@
 // built from the Markdown instead — one record per slide, linking its route —
 // and the site merges it into its own (Starlight's `pagefind.mergeIndex`).
 
-import { dirname } from 'node:path';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import { load } from '@slidev/parser/fs';
 import { marked } from 'marked';
 import { close, createIndex } from 'pagefind';
@@ -41,8 +42,17 @@ export async function writeSlidesIndex({ deckFile, base, lang, outDir }) {
       const added = await index.addCustomRecord(record);
       if (added.errors.length) throw new Error(`pagefind: ${added.errors.join('; ')}`);
     }
-    const written = await index.writeFiles({ outputPath: outDir });
-    if (written.errors.length) throw new Error(`pagefind: ${written.errors.join('; ')}`);
+    // Not `index.writeFiles`: it resolves before the backend has flushed every
+    // file, and `close()` then kills it mid-write — an empty
+    // `pagefind-entry.json` now and then. The files are taken in memory and
+    // written here instead.
+    const { files, errors: getErrors } = await index.getFiles();
+    if (getErrors.length) throw new Error(`pagefind: ${getErrors.join('; ')}`);
+    for (const { path, content } of files) {
+      const target = join(outDir, path);
+      await mkdir(dirname(target), { recursive: true });
+      await writeFile(target, content);
+    }
     return { pages: records.length };
   } finally {
     await close();
