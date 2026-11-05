@@ -23,12 +23,16 @@ import { join } from 'node:path';
 import { participantsZip, solutionsZip, workshopZips } from '../downloads/archives.mjs';
 import { writeDeck } from '../deck/deck.mjs';
 import { printDeck } from '../deck/deck-pdf.mjs';
+import { writeSlidesIndex } from '../deck/deck-search.mjs';
 import { downloadNames } from '../downloads/names.mjs';
 import { printHandbook, renderHandbook } from '../downloads/handbook.mjs';
 import { renderHeaders, renderRedirects } from '../site/hosting.mjs';
 import { writeSite } from '../site/site.mjs';
 import { binPath, chromiumPath, run } from './tools.mjs';
 import { readWorkshops } from '../core/workshops.mjs';
+
+// Where the deck's search index goes, and where the site's `mergeIndex` looks for it.
+const slidesIndex = join('slides', 'pagefind');
 
 const megabytes = (bytes) => `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 
@@ -75,6 +79,21 @@ export async function build(config, { only = null, pdf = true, log = console.log
     await run(binPath(root, 'slidev'), ['build', file, '--base', '/slides/', '--out', join(out, 'slides')], {
       cwd: root,
     });
+
+    // The site's search box looks into the deck through this index.
+    await nonFatal(
+      'the search index of the slides',
+      async () => {
+        const { pages } = await writeSlidesIndex({
+          deckFile: file,
+          base: '/slides/',
+          lang: config.lang,
+          outDir: join(out, slidesIndex),
+        });
+        log(`✔ slides/pagefind/  ${pages} slides searchable from the site`);
+      },
+      log,
+    );
 
     if (withPdf) {
       await nonFatal(
@@ -136,7 +155,11 @@ export async function build(config, { only = null, pdf = true, log = console.log
   // Built last: its Resources page only links the files that are now in
   // build/downloads/.
   if (withSite) {
-    const { siteDir, workshops, ignored, withoutReadme, skippedFromEditor } = await writeSite(config, { downloadsDir });
+    const { siteDir, workshops, ignored, withoutReadme, skippedFromEditor } = await writeSite(config, {
+      downloadsDir,
+      // `--only site` keeps the deck of a previous build, and its index with it.
+      slidesSearch: existsSync(join(out, slidesIndex, 'pagefind-entry.json')),
+    });
     for (const entry of ignored) log(`⚠ workshops/${entry.name}: ${entry.reason}`);
     for (const name of withoutReadme) log(`⚠ workshops/${name} has no README.md — no page for it`);
     for (const file of skippedFromEditor) log(`⚠ ${file}: not in the online editor (binary or too big)`);

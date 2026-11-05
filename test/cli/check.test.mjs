@@ -113,6 +113,16 @@ test('reports a slide imported with src: that does not exist', async () => {
   ]);
 });
 
+test('accepts a slide imported with src: and a range of its slides, when the file exists', async () => {
+  const root = await tree({
+    ...SOUND,
+    'slides/1-intro.md': '---\nsrc: ./parts/shared.md#1-2\n---\n',
+    'slides/parts/shared.md': '# One\n\n---\n\n# Two\n',
+  });
+
+  assert.deepEqual(await check(configOf(root)), []);
+});
+
 test('leaves the code alone: a link inside a code block or a code span is not checked', async () => {
   const root = await tree({
     ...SOUND,

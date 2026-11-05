@@ -109,7 +109,9 @@ async function checkSlides(config, { report, references, asset, attempt }) {
     for (const slide of parseSync(markdown, chapter.path).slides) {
       const { src } = slide.frontmatter;
       if (typeof src === 'string') {
-        const imported = src.startsWith('/') ? join(dir, src) : join(dirname(chapter.path), src);
+        // `#1-2` after the file picks some of its slides.
+        const file = src.replace(/#.*$/, '');
+        const imported = file.startsWith('/') ? join(dir, file) : join(dirname(chapter.path), file);
         if (!existsSync(imported)) report(chapter.path, `broken import: ${src}`);
       }
       for (const key of ASSET_KEYS) asset(chapter.path, 'image', slide.frontmatter[key], { publicDir });

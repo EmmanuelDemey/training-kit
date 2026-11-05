@@ -142,6 +142,23 @@ test('the online editor turns on cross-origin isolation and the script that driv
   assert.match(source, /editLink: \{ baseUrl: "https:\/\/github.com\/me\/t\/edit\/main\/" \}/);
 });
 
+test('the search covers the slides when the build indexed them', async () => {
+  const config = resolveConfig({ title: 'T' }, '/work/t');
+
+  const source = renderAstroConfig(config, { slidesSearch: true });
+
+  await assertValidModule(source);
+  // `baseUrl`: the records already link /slides/<n>; by default Pagefind would
+  // prefix them with the bundle's folder, /slides/, again.
+  assert.match(source, /pagefind: \{ mergeIndex: \[\{ bundlePath: '\/slides\/pagefind\/', baseUrl: '\/' \}\] \}/);
+});
+
+test('the search stays on the site alone when there is no index of the slides', () => {
+  const config = resolveConfig({ title: 'T' }, '/work/t');
+
+  assert.doesNotMatch(renderAstroConfig(config), /mergeIndex/);
+});
+
 test('writes a complete Astro project under .training-kit/site', async () => {
   const root = await tree({
     'workshops/README.md': '# About\n\nRead me.',
