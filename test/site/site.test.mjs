@@ -260,3 +260,34 @@ test('workshop pages see the ZIPs the build put under downloads/tp/', async () =
     /\/downloads\/tp\/1-a-starter\.zip/,
   );
 });
+
+test('a hint block becomes a collapsed <details> on the workshop page, its Markdown kept inside', () => {
+  const config = resolveConfig({ title: 'T' }, '/work/t');
+  const body = '## Steps\n\n:::hint[Stuck on the router?]\nUse `useRoute()`.\n:::\n\nNext.\n';
+
+  const page = renderWorkshopPage({ config, workshop: { ...workshop, body } });
+
+  assert.match(
+    page,
+    /<details class="hint">\n<summary>Stuck on the router\?<\/summary>\n\nUse `useRoute\(\)`\.\n\n<\/details>\n\nNext\./,
+  );
+  assert.doesNotMatch(page, /:::hint/);
+});
+
+test('a hint block without a title is summarised as "Hint"', () => {
+  const config = resolveConfig({ title: 'T' }, '/work/t');
+
+  const page = renderWorkshopPage({ config, workshop: { ...workshop, body: ':::hint\nLook up.\n:::\n' } });
+
+  assert.match(page, /<summary>Hint<\/summary>\n\nLook up\./);
+});
+
+test('a hint block inside a code fence is left as it is', () => {
+  const config = resolveConfig({ title: 'T' }, '/work/t');
+  const body = '```markdown\n:::hint\nExample.\n:::\n```\n';
+
+  const page = renderWorkshopPage({ config, workshop: { ...workshop, body } });
+
+  assert.match(page, /```markdown\n:::hint\nExample\.\n:::\n```/);
+  assert.doesNotMatch(page, /<details/);
+});

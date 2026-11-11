@@ -37,3 +37,11 @@ test('puts the workshops README before the first workshop, only when there is on
   assert.match(withOverview, /<section class="page intro"><h1>About these workshops<\/h1><p>Read me\.<\/p>/);
   assert.doesNotMatch(without, /About these workshops/);
 });
+
+test('leaves the hint blocks out of the printed handbook, the rest of the README kept', () => {
+  const body = 'Before.\n\n:::hint[Spoiler]\nThe answer is `42`.\n:::\n\nAfter.';
+  const html = renderHandbook({ title: 'T', author: '', workshops: [{ ...workshops[0], body }], overview: null });
+
+  assert.doesNotMatch(html, /Spoiler|answer is|:::/);
+  assert.match(html, /<p>Before\.<\/p>\s*<p>After\.<\/p>/);
+});

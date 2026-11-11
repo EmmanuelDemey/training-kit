@@ -77,3 +77,18 @@
   border: 0;
   border-radius: 0.375rem;
 }
+
+/* A `:::hint` block of a README (src/core/hints.mjs): folded until the learner
+   asks for it. Left out of the printed handbook. */
+.sl-markdown-content details.hint {
+  margin-block: 1rem;
+  padding: 0.5rem 1rem;
+  border: 1px dashed var(--sl-color-gray-4);
+  border-radius: 0.5rem;
+}
+
+.sl-markdown-content details.hint > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--sl-color-text-accent);
+}

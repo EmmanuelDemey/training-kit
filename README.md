@@ -101,6 +101,18 @@ The README is the single source of a workshop's instructions. From it:
 …
 ```
 
+### Hints
+
+A `:::hint` block holds help a learner should open only when stuck. On the site
+it is a collapsed `<details>`; the printed handbook leaves it out. The title is
+optional (`Hint` by default), and the body is Markdown.
+
+```markdown
+:::hint[Stuck on the route parameter?]
+Read it with `useRoute().params.id`.
+:::
+```
+
 ## Configuration
 
 `training.config.mjs`, at the root of the project. Only `title` is required.

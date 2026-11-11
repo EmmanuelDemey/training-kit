@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { downloadNames, workshopDownloadNames } from '../downloads/names.mjs';
 import { playgroundProject } from './playground.mjs';
 import { readWorkshops } from '../core/workshops.mjs';
+import { hintsToDetails } from '../core/hints.mjs';
 
 const TEMPLATE_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'site-template');
 
@@ -121,7 +122,7 @@ export function renderWorkshopPage({ config, workshop, playground = '', download
     '',
     ...(zips ? [zips, ''] : []),
     ...(playground ? [playground, ''] : []),
-    withFinalNewline(workshop.body),
+    withFinalNewline(hintsToDetails(workshop.body)),
   ].join('\n');
 }
 
@@ -155,7 +156,7 @@ export function renderOverviewPage({ config, workshops, overview }) {
     }),
     '',
     index,
-    ...(overview ? ['', '## About these workshops', '', withFinalNewline(overview.body)] : ['']),
+    ...(overview ? ['', '## About these workshops', '', withFinalNewline(hintsToDetails(overview.body))] : ['']),
   ].join('\n');
 }
 

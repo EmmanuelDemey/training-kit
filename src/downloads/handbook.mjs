@@ -5,6 +5,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { marked } from 'marked';
+import { stripHints } from '../core/hints.mjs';
 
 const escape = (text) => String(text).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
@@ -88,7 +89,7 @@ export function renderHandbook({ title, author, workshops, overview }) {
       (workshop) => `<section class="page workshop" id="${anchorOf(workshop)}">
     <h1>${escape(workshop.title)}</h1>
     <p class="folder">${escape(workshop.name)}/</p>
-    ${marked.parse(workshop.body)}
+    ${marked.parse(stripHints(workshop.body))}
   </section>`,
     )
     .join('\n');
@@ -113,7 +114,7 @@ export function renderHandbook({ title, author, workshops, overview }) {
     <ol>${contents}</ol>
   </section>
 
-  ${overview ? `<section class="page intro"><h1>About these workshops</h1>${marked.parse(overview.body)}</section>` : ''}
+  ${overview ? `<section class="page intro"><h1>About these workshops</h1>${marked.parse(stripHints(overview.body))}</section>` : ''}
 
   ${pages}
 </body>
