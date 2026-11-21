@@ -1,0 +1,7 @@
+# Read by `trivy fs .` from the repository root, locally and in CI.
+scan:
+  scanners: [vuln, secret, misconfig]
+  skip-dirs: [node_modules]
+severity: [MEDIUM, HIGH, CRITICAL]
+exit-code: 1
+ignorefile: .trivyignore.yaml

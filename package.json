@@ -50,8 +50,8 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@slidev/parser": "52.8.0",
-    "archiver": "^7.0.1",
+    "@slidev/parser": "52.20.1",
+    "archiver": "^8.0.0",
     "marked": "^11.2.0",
     "pagefind": "^1.5.2",
     "pdf-lib": "^1.17.1",

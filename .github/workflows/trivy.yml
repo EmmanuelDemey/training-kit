@@ -1,0 +1,31 @@
+name: Trivy
+
+# Known vulnerabilities in the locked dependencies, committed secrets and
+# misconfigurations, as trivy.yaml sets them. Weekly as well: a CVE published
+# today fails a lockfile that has not moved.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Scan (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Pinned by commit: this action's tags were rewritten in the March 2026
+      # supply-chain attack, a tag alone proves nothing.
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          version: v0.76.2
+          scan-type: fs
+          scan-ref: .
+          trivy-config: trivy.yaml

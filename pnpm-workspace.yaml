@@ -14,3 +14,13 @@ allowBuilds:
   # ship as optional dependencies, neither needs its script.
   esbuild: false
   sharp: false
+
+# Security fixes Trivy reports in transitive dependencies, until their parents
+# move on (see .trivyignore.yaml for what cannot be forced yet).
+overrides:
+  # monaco-editor (Slidev) pins it exactly; same major.
+  dompurify: ^3.4.18
+  # @modelcontextprotocol/node (Slidev) accepts ^2.1.3 already.
+  '@hono/node-server': ^2.1.11
+  # Declared by pptxgenjs (Slidev's PPTX export) but never imported by its build.
+  image-size: ^2.0.3

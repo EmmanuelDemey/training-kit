@@ -1,0 +1,18 @@
+# Findings Trivy may skip, each with why and until when. Only fixes that need a
+# major version their parent does not accept yet belong here; the others are
+# forced through `overrides` in pnpm-workspace.yaml.
+vulnerabilities:
+  - id: CVE-2026-103923
+    paths: [pnpm-lock.yaml]
+    statement: >-
+      katex 0.16 through mermaid (Slidev), which accepts ^0.16 only; the fix is
+      in 0.18. KaTeX renders the formulas of the deck's own slides, written by
+      the trainer.
+    expired_at: 2027-03-01
+  - id: CVE-2026-118764
+    paths: [pnpm-lock.yaml]
+    statement: >-
+      minimatch 10 through archiver's readdir-glob, which accepts ^10 only; the
+      fix is in 11. It needs a crafted pattern: archives.mjs only passes its
+      own literal patterns.
+    expired_at: 2027-03-01

@@ -12,7 +12,7 @@
 import { createWriteStream, existsSync } from 'node:fs';
 import { mkdir, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import { downloadNames, workshopDownloadNames } from './names.mjs';
 
 /** Never zipped: what an install or a build regenerates, and local env overrides. */
@@ -33,7 +33,7 @@ async function zip(file, fill) {
   await mkdir(join(file, '..'), { recursive: true });
   return new Promise((resolve, reject) => {
     const output = createWriteStream(file);
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = new ZipArchive({ zlib: { level: 9 } });
     output.on('close', () => resolve(archive.pointer()));
     archive.on('warning', (error) => console.warn(`⚠ ${error.message}`));
     archive.on('error', reject);
