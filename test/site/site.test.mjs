@@ -39,7 +39,7 @@ test('a workshop page carries the title, the description and the order of its fo
   assert.doesNotMatch(page, /editUrl|GitHub/);
 });
 
-test('with a repository, a workshop page links to its README and its folder', () => {
+test('a repository in the config adds no link to it on a workshop page', () => {
   const config = resolveConfig(
     { title: 'T', repository: { url: 'https://github.com/me/all', dir: 'trainings/t' } },
     '/work/t',
@@ -47,11 +47,7 @@ test('with a repository, a workshop page links to its README and its folder', ()
 
   const page = renderWorkshopPage({ config, workshop });
 
-  assert.match(
-    page,
-    /editUrl: "https:\/\/github.com\/me\/all\/edit\/main\/trainings\/t\/workshops\/2-second\/README.md"/,
-  );
-  assert.match(page, /\(https:\/\/github.com\/me\/all\/tree\/main\/trainings\/t\/workshops\/2-second\)/);
+  assert.doesNotMatch(page, /editUrl|github|browse the folder/i);
 });
 
 test('the online editor block goes right after the note, before the instructions', () => {
@@ -132,14 +128,22 @@ test('the Astro config is valid JavaScript, titled after the training', async ()
 });
 
 test('the online editor turns on cross-origin isolation and the script that drives it', async () => {
-  const config = resolveConfig({ title: 'T', playground: true, repository: 'https://github.com/me/t' }, '/work/t');
+  const config = resolveConfig({ title: 'T', playground: true }, '/work/t');
 
   const source = renderAstroConfig(config);
 
   await assertValidModule(source);
   assert.match(source, /'Cross-Origin-Embedder-Policy': 'require-corp'/);
   assert.match(source, /MarkdownContent: '\.\/src\/components\/MarkdownContent\.astro'/);
-  assert.match(source, /editLink: \{ baseUrl: "https:\/\/github.com\/me\/t\/edit\/main\/" \}/);
+});
+
+test('a repository in the config adds no social or edit link to the site', async () => {
+  const config = resolveConfig({ title: 'T', repository: 'https://github.com/me/t' }, '/work/t');
+
+  const source = renderAstroConfig(config);
+
+  await assertValidModule(source);
+  assert.doesNotMatch(source, /social|editLink|github/i);
 });
 
 test('the search covers the slides when the build indexed them', async () => {

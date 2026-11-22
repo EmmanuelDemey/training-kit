@@ -42,19 +42,10 @@ test('playground: true takes the defaults of a Node.js project', () => {
   });
 });
 
-test('a repository adds a branch, main by default, and the project at its root', () => {
+test('a repository is not part of the resolved config', () => {
   const config = resolveConfig({ title: 'T', repository: 'https://github.com/me/t' }, '/work/t');
 
-  assert.deepEqual(config.repository, { url: 'https://github.com/me/t', branch: 'main', dir: '' });
-});
-
-test('a project in a sub-folder of its repository says which one', () => {
-  const config = resolveConfig(
-    { title: 'T', repository: { url: 'https://github.com/me/all', branch: 'dev', dir: 'trainings/t/' } },
-    '/work/t',
-  );
-
-  assert.deepEqual(config.repository, { url: 'https://github.com/me/all', branch: 'dev', dir: 'trainings/t' });
+  assert.equal('repository' in config, false);
 });
 
 test('lists every mistake at once, not one per run', () => {

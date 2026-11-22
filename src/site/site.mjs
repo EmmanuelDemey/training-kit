@@ -26,20 +26,6 @@ const escapeHtml = (text) =>
 /** A path of the project, as a POSIX path from the project root. */
 const projectPath = (config, absolute) => relative(config.root, absolute).split(sep).join('/');
 
-/** `https://github.com/me/repo/<kind>/<branch>/<dir>/<path>` */
-function repositoryLink(config, kind, path) {
-  const { url, branch, dir } = config.repository;
-  return `${url}/${kind}/${branch}/${[dir, path].filter(Boolean).join('/')}`;
-}
-
-/** What to call the host in a link: "on GitHub", or "in the repository". */
-function hostName(config) {
-  const host = new URL(config.repository.url).hostname;
-  if (host.endsWith('github.com')) return 'GitHub';
-  if (host.includes('gitlab')) return 'GitLab';
-  return null;
-}
-
 function frontmatter(fields) {
   const lines = ['---'];
   for (const [key, value] of Object.entries(fields)) {
@@ -98,16 +84,8 @@ function workshopDownloads(workshop, downloads) {
 /** One workshop: its README, under a note that says which folder to open and where to download it. */
 export function renderWorkshopPage({ config, workshop, playground = '', downloads = new Set() }) {
   const folder = `${projectPath(config, config.paths.workshops)}/${workshop.name}`;
-  const host = config.repository && hostName(config);
 
-  const note = [
-    ':::note[Where to work]',
-    `Open \`${folder}/\`${config.repository ? ' —' : '.'}`,
-    ...(config.repository
-      ? [`[browse the folder ${host ? `on ${host}` : 'in the repository'}](${repositoryLink(config, 'tree', folder)}).`]
-      : []),
-    ':::',
-  ].join('\n');
+  const note = [':::note[Where to work]', `Open \`${folder}/\`.`, ':::'].join('\n');
   const zips = workshopDownloads(workshop, downloads);
 
   return [
@@ -115,7 +93,6 @@ export function renderWorkshopPage({ config, workshop, playground = '', download
       title: workshop.title,
       description: workshop.description,
       sidebar: { order: workshop.order, label: workshop.label },
-      editUrl: config.repository ? repositoryLink(config, 'edit', `${folder}/README.md`) : undefined,
     }),
     '',
     note,
@@ -133,7 +110,6 @@ export function renderOverviewPage({ config, workshops, overview }) {
   const title = overview?.title ?? config.title;
   const description =
     overview?.description || `The ${workshops.length} hands-on workshops of the ${config.title} training.`;
-  const readme = `${projectPath(config, config.paths.workshops)}/README.md`;
 
   const index = [
     '## The workshops',
@@ -149,11 +125,7 @@ export function renderOverviewPage({ config, workshops, overview }) {
   ].join('\n');
 
   return [
-    frontmatter({
-      title,
-      description,
-      editUrl: config.repository && overview ? repositoryLink(config, 'edit', readme) : undefined,
-    }),
+    frontmatter({ title, description }),
     '',
     index,
     ...(overview ? ['', '## About these workshops', '', withFinalNewline(hintsToDetails(overview.body))] : ['']),
@@ -184,7 +156,6 @@ export function renderResourcesPage({ config, workshops, downloads }) {
   const names = downloadNames(config.slug);
   const has = (file) => downloads.has(file);
   const count = workshops.length;
-  const workshopsFolder = projectPath(config, config.paths.workshops);
 
   return [
     frontmatter({
@@ -234,15 +205,6 @@ export function renderResourcesPage({ config, workshops, downloads }) {
           '- _This training has no solutions archive: ask your trainer for the state to start from if you fell behind._',
         ]),
     '',
-    ...(config.repository
-      ? [
-          '## Elsewhere',
-          '',
-          `- [The whole repository](${config.repository.url})`,
-          `- [The workshop folders](${repositoryLink(config, 'tree', workshopsFolder)})`,
-          '',
-        ]
-      : []),
   ].join('\n');
 }
 
@@ -260,13 +222,6 @@ function languageLabel(lang) {
  * deck into /slides/pagefind/, so the search box looks into the slides too.
  */
 export function renderAstroConfig(config, { slidesSearch = false } = {}) {
-  const host = config.repository && hostName(config);
-  const social = host
-    ? `\n      social: [{ icon: '${host.toLowerCase()}', label: '${host}', href: ${yaml(config.repository.url)} }],`
-    : '';
-  const editLink = config.repository
-    ? `\n      // Each page carries its own editUrl, pointing at the README it comes from;\n      // this only turns the feature on.\n      editLink: { baseUrl: ${yaml(`${config.repository.url}/edit/${config.repository.branch}/`)} },`
-    : '';
   const isolation = config.playground
     ? `
   // The online editor (StackBlitz WebContainers) runs Node.js on
@@ -307,7 +262,7 @@ export default defineConfig({
     starlight({
       title: ${yaml(config.title)},
       description: ${yaml(`The hands-on workshops of the ${config.title} training.`)},
-      locales: { root: { label: ${yaml(languageLabel(config.lang))}, lang: ${yaml(config.lang)} } },${social}${editLink}
+      locales: { root: { label: ${yaml(languageLabel(config.lang))}, lang: ${yaml(config.lang)} } },
       lastUpdated: false,
       sidebar: [
         { label: 'Overview', link: '/' },

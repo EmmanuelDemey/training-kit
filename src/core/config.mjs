@@ -68,16 +68,6 @@ export function resolveConfig(raw, root) {
     errors.push('`playground` must be true, false or an object ({ template, openFile, extraFiles, limits })');
   }
 
-  // `dir`: where the project sits in its repository, for the edit and browse links.
-  const repositoryRaw = typeof raw.repository === 'string' ? { url: raw.repository } : raw.repository;
-  const repository = repositoryRaw
-    ? {
-        url: repositoryRaw.url.replace(/\/+$/, ''),
-        branch: repositoryRaw.branch ?? 'main',
-        dir: (repositoryRaw.dir ?? '').replaceAll(/^\/+|\/+$/g, ''),
-      }
-    : null;
-
   const verify = { script: 'test', ...raw.verify };
   if (typeof verify.script !== 'string' || verify.script === '') {
     errors.push('`verify.script` must be the name of an npm script of the solutions (`test` by default)');
@@ -93,7 +83,6 @@ export function resolveConfig(raw, root) {
     slug: raw.slug ?? kebab(raw.title),
     author: raw.author ?? '',
     lang: raw.lang ?? 'en',
-    repository,
     deck: { theme: 'default', headmatter: {}, ...raw.deck },
     playground,
     verify,

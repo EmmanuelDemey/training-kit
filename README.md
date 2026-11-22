@@ -127,26 +127,24 @@ export default defineConfig({
   workshops: 'workshops',
   solutions: 'solutions',
   playground: true,
-  repository: 'https://github.com/me/advanced-vue',
   deck: { theme: 'seriph', headmatter: { lineNumbers: true } },
 });
 ```
 
-| Option            | Default                |                                                                                                                                                                |
-| ----------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `title`           | — (required)           | the name of the training: deck cover, site title, handbook cover                                                                                               |
-| `slug`            | the title, kebab-cased | prefixes the downloads: `<slug>-slides.pdf`                                                                                                                    |
-| `author`          | `''`                   | on the deck cover and the handbook cover                                                                                                                       |
-| `slides`          | `'slides'`             | the folder of numbered chapters                                                                                                                                |
-| `workshops`       | `'workshops'`          | the folder of numbered workshop folders                                                                                                                        |
-| `solutions`       | `'solutions'`          | the folder of solutions, one per workshop, same names. `false` if there are none                                                                               |
-| `outDir`          | `'build'`              | where `training-kit build` writes                                                                                                                              |
-| `lang`            | `'en'`                 | the language of the site                                                                                                                                       |
-| `deck.theme`      | `'default'`            | the Slidev theme — install its package                                                                                                                         |
-| `deck.headmatter` | `{}`                   | any [Slidev headmatter](https://sli.dev/custom/#headmatter); it wins over `theme` and `title`                                                                  |
-| `verify.script`   | `'test'`               | the npm script `training-kit verify` runs in each solution                                                                                                     |
-| `playground`      | `false`                | the online editor on the workshop pages: `true`, or an object (below)                                                                                          |
-| `repository`      | none                   | a URL, or `{ url, branch = 'main', dir = '' }` — `dir` when the project is a sub-folder of the repository. Adds "edit this page" and "browse the folder" links |
+| Option            | Default                |                                                                                               |
+| ----------------- | ---------------------- | --------------------------------------------------------------------------------------------- |
+| `title`           | — (required)           | the name of the training: deck cover, site title, handbook cover                              |
+| `slug`            | the title, kebab-cased | prefixes the downloads: `<slug>-slides.pdf`                                                   |
+| `author`          | `''`                   | on the deck cover and the handbook cover                                                      |
+| `slides`          | `'slides'`             | the folder of numbered chapters                                                               |
+| `workshops`       | `'workshops'`          | the folder of numbered workshop folders                                                       |
+| `solutions`       | `'solutions'`          | the folder of solutions, one per workshop, same names. `false` if there are none              |
+| `outDir`          | `'build'`              | where `training-kit build` writes                                                             |
+| `lang`            | `'en'`                 | the language of the site                                                                      |
+| `deck.theme`      | `'default'`            | the Slidev theme — install its package                                                        |
+| `deck.headmatter` | `{}`                   | any [Slidev headmatter](https://sli.dev/custom/#headmatter); it wins over `theme` and `title` |
+| `verify.script`   | `'test'`               | the npm script `training-kit verify` runs in each solution                                    |
+| `playground`      | `false`                | the online editor on the workshop pages: `true`, or an object (below)                         |
 
 `playground` as an object:
 
